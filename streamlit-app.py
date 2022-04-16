@@ -1,10 +1,16 @@
 # Streamlit UI
+from matplotlib import collections
+from nbformat import write
 import streamlit as st 
 # Keras load model
 from keras.models import load_model
 # Excell
 import openpyxl as xl
 import numpy as np
+# Collections
+import collections
+
+model = load_model('./models/newest.model')
 
 st.sidebar.title('TEST')
 
@@ -23,26 +29,29 @@ props_sheet = wb['Sheet1']
 terain_properties = list(props_sheet.iter_cols(min_row=1, max_col=2, min_col=2, values_only=True))[0]
 terain_properties = list(map(lambda x: x.strip(), terain_properties))
 
-def sortByActivation():
-    pass
+categories_sheet = wb['Sheet5']
+categories = list(categories_sheet.iter_cols(min_row=1, max_row=10, min_col=1, max_col=1,  values_only=True))[0]
+
 
 def changeHandler():
-    pass
+    l = {}
+    predictions = getPredictions(choices, terain_properties)[0]
+    for inx, clas in enumerate(categories):
+        l[clas] = predictions[inx]
+    new_l = {k: v for k, v in sorted(l.items(), key=lambda item: item[1], reverse=True)}
+    st.write(new_l)
+    
 
 choices = []
 for inx, clas in enumerate(terain_property_classes):
-    choices.append(st.sidebar.selectbox(clas, categorical_items[inx], key=clas))
+    choices.append(st.sidebar.selectbox(clas, categorical_items[inx], key=clas, on_change=changeHandler))
 
-
-model = load_model('./models/newest.model')
 
 def getPredictions(predictionArr, properties):
-    statements = np.zeros((len(predictionArr), len(properties)))
+    statements = np.zeros((1, len(properties)))
     for line in statements:
         for prop in predictionArr:
             line[properties.index(prop)] = 1.0
     return model.predict(statements)
-
-lines = getPredictions(choices, terain_properties)
 
 
