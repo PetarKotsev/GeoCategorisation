@@ -14,17 +14,17 @@ st.sidebar.title('TEST')
 
 # load data for the selecets
 ## loading an existing workbook
-wb = xl.load_workbook('Geology Input for Petar Updated April 8th.xlsx')
+wb = xl.load_workbook('Geology Input for Petar Updated April 11th.xlsx')
 ## Select the worksheet
 categorical_items_sheet = wb['Sheet3']
-categorical_items = list(categorical_items_sheet.iter_cols(min_row=1, max_row=22, min_col=1, max_col=6,  values_only=True))
+categorical_items = list(categorical_items_sheet.iter_cols(min_row=1, max_row=24, min_col=1, max_col=6,  values_only=True))
 categorical_items = [tuple(xi for xi in x if xi is not None) for x in categorical_items]
 
 item_categories_sheet = wb['Sheet4']
 terain_property_classes = tuple(item_categories_sheet.iter_rows(min_row=1, max_row=1, min_col=1, max_col=6,  values_only=True))[0]
 
 props_sheet = wb['Sheet1']
-terain_properties = list(props_sheet.iter_cols(min_row=1, max_col=2, min_col=2, values_only=True))[0]
+terain_properties = list(props_sheet.iter_cols(min_row=1, max_col=1, min_col=1, values_only=True))[0]
 terain_properties = list(map(lambda x: x.strip(), terain_properties))
 
 categories_sheet = wb['Sheet5']
@@ -32,6 +32,7 @@ categories = list(categories_sheet.iter_cols(min_row=1, max_row=10, min_col=1, m
 
 
 def changeHandler():
+    print(choices)
     l = {}
     predictions = getPredictions(choices, terain_properties)[0]
     for inx, clas in enumerate(categories):
@@ -43,7 +44,11 @@ def changeHandler():
 choices = []
 for inx, clas in enumerate(terain_property_classes):
     choices.append(st.sidebar.selectbox(clas, categorical_items[inx], key=clas, on_change=changeHandler))
+    if inx >=2:
+        break
 
+multy = st.sidebar.multiselect('Special features', np.concatenate(categorical_items[3:]), on_change=changeHandler)
+choices = choices + multy
 
 def getPredictions(predictionArr, properties):
     statements = np.zeros((1, len(properties)))
