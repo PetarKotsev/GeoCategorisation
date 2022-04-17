@@ -1,6 +1,4 @@
 # Streamlit UI
-from matplotlib import collections
-from nbformat import write
 import streamlit as st 
 # Keras load model
 from keras.models import load_model
